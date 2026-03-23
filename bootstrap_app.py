@@ -180,8 +180,32 @@ def find_package_dirs(root: Path):
 
 def run_install(pkg_dir: Path, npm_path: str):
     print(f"\n=== Running npm install in: {pkg_dir} ===")
-    result = subprocess.run([npm_path, "install"], cwd=pkg_dir)
-    return result.returncode
+
+    # Capture output so we can gracefully retry lockfile-permission issues
+    # without flooding the console with known EPERM noise.
+    first_try = subprocess.run(
+        [npm_path, "install"],
+        cwd=pkg_dir,
+        text=True,
+        capture_output=True,
+    )
+
+    if first_try.returncode == 0:
+        return 0
+
+    stderr = first_try.stderr or ""
+    is_lockfile_eperm = "EPERM" in stderr and "package-lock.json" in stderr
+
+    if is_lockfile_eperm:
+        print("  Lockfile permission issue detected. Retrying with --no-package-lock...")
+        retry = subprocess.run([npm_path, "install", "--no-package-lock"], cwd=pkg_dir)
+        return retry.returncode
+
+    if first_try.stdout:
+        print(first_try.stdout, end="")
+    if first_try.stderr:
+        print(first_try.stderr, end="")
+    return first_try.returncode
 
 
 # ---------------------------------------------------------------------------
