@@ -4,7 +4,7 @@ aws-api-gateway-websocket-dev-kit is a framework-agnostic monorepo for building 
 
 ## Architecture
 
-![Architecture diagram](./sam-websocket-dev-kit.drawio.svg)
+![Architecture diagram](./architecture.svg)
 
 ## Components
 
