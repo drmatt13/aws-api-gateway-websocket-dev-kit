@@ -1,5 +1,5 @@
 {
-  "watch": ["../sam-app/src"],
+  "watch": ["../sam-app/src", "../cdk-app/lambda-functions"],
   "ext": "ts",
   "exec": "ts-node ./src/index.ts"
 }
